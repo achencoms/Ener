@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta charset="utf-8">
+    <title>Search Page for Users</title>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/logout" class="btn btn-danger my-2">Logout</a>
+      <div class="jumbotron my-2">
+        <h1>Welcome user to the best search page.</h1>
+        <form class="input-group" action="/lookup" method="get">
+          <input type="text" class="form-control" name="keyword" placeholder="Search anything related to dogs...">
+          <div class="input-group-append">
+            <input type="submit" class="btn btn-primary" value="Search">
+          </div>
+        </form>
+      </div>
+      {% if dogs is defined %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th><h2>Dog Breed</h2></th>
+            </tr>
+          </thead>
+          <tbody>
+        {% for i in dogs %}
+          <tr>
+           <td><h3><a href="/dog?breed={{i.breed}}">{{i.breed}}</a></h3></td>
+         </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+    </div>
+  </body>
+</html>
