@@ -1,12 +1,17 @@
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from mongoengine import *
+from elasticsearch_dsl import DocType, Integer, Text, connections
+
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "mostsecretivestkeyestkeyinthekeyworld123@oldmcdanl"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + os.path.join(basedir + "/data/", 'app.db')
 db = SQLAlchemy(app)
 connect('dogsarevenereal',host='mongodb://test:test@ds155278.mlab.com:55278/dogarevenereal')
+connections.create_connection(hosts=['https://ie3ki6y042:5ii1iheuq9@searchers-3558659079.us-east-1.bonsaisearch.net'])
 
 class Dog(Document):
     breed = StringField(required=True, max_length=30)
