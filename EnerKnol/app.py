@@ -1,18 +1,22 @@
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from mongoengine import *
-from elasticsearch_dsl import DocType, Integer, Text, connections
 
-import os
+import os,math
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+#Initializing Flask application and configuring secret key for session and for flask_sqlalchemy
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "mostsecretivestkeyestkeyinthekeyworld123@oldmcdanl"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + os.path.join(basedir + "/data/", 'app.db')
-db = SQLAlchemy(app)
-connect('dogsarevenereal',host='mongodb://test:test@ds155278.mlab.com:55278/dogarevenereal')
-connections.create_connection(hosts=['https://ie3ki6y042:5ii1iheuq9@searchers-3558659079.us-east-1.bonsaisearch.net'])
 
+#Creating the SQLAlchemy App
+db = SQLAlchemy(app)
+
+#mlab hosted database
+connect('dogsarevenereal',host='mongodb://test:test@ds155278.mlab.com:55278/dogarevenereal')
+
+#Document schema for Dogs
 class Dog(Document):
     breed = StringField(required=True, max_length=30)
     weight = IntField(required=True)
@@ -20,6 +24,7 @@ class Dog(Document):
     size =  StringField(required=True)
     temperament = StringField()
 
+#Model for Users
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(30), nullable = False)
@@ -37,6 +42,10 @@ def root():
       return redirect(url_for('search'))
   return render_template("home.html")
 
+'''
+Upon pressing register, will do procedural checks to make sure username doesn't already exist or email exists.
+Also ensures that the registration form is completely filled out.
+'''
 @app.route('/register', methods=["POST"])
 def reg():
   data = request.form
@@ -50,6 +59,10 @@ def reg():
     db.session.commit()
   return render_template("home.html",msg="You have successfully registered. Please proceed to login.")
 
+'''
+Ensures completion of the login form on the home page and if password and username match the ones stored in database
+Once the user has been validated, a session will be created for the user to keep track of his or her login session.
+'''
 @app.route('/login',methods=["POST"])
 def log():
     data = request.form
@@ -65,18 +78,35 @@ def logout():
     session.pop('log')
     return redirect(url_for('root'))
 
+
 @app.route('/search')
 def search():
     if('log' not in session):
         return redirect(url_for("root"))
     return render_template("search.html")
 
-@app.route('/lookup',methods=["GET"])
-def lookup():
-    data = request.args
-    doggies = Dog.objects(size__contains=data['keyword'])
-    return render_template("search.html",dogs=doggies)
+'''
+Currently
 
+For pagination, I considered 3 scenarios (4 dogs is the default amount for any page):
+1) The user chooses to go to a page beyond the number of pages, thus returning an empty array
+2) The user wants to see the last page of the dogs but there are less than 4 dogs, so I return the remaining dogs.
+3) The user chooses any page that contains 4 dogs.
+'''
+@app.route('/lookup/<page>',methods=["GET"])
+def lookup(page):
+    data = request.args
+    key = data['keyword'].lower()
+    doggies = Dog.objects(Q(size__contains=key) | Q(breed__contains=key) | Q(lifespan__contains=key))
+    page = int(page)
+    count = doggies.count()
+    numPages = math.ceil(count / 4.0)
+    if((page-1) * 4 > count): doggies = []
+    elif(page * 4 > count): doggies = doggies[(page-1)*4:count]
+    else: doggies = doggies[(page-1) * 4: page * 4]
+    return render_template("search.html",dogs=doggies, pages=numPages, curPage=page)
+
+#Separate page for the dog breed
 @app.route('/dog',methods=["GET"])
 def breed():
     data = request.args

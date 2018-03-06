@@ -10,7 +10,7 @@
       <a href="/logout" class="btn btn-danger my-2">Logout</a>
       <div class="jumbotron my-2">
         <h1>Welcome user to the best search page.</h1>
-        <form class="input-group" action="/lookup" method="get">
+        <form class="input-group" action="/lookup/1" method="get">
           <input type="text" class="form-control" name="keyword" placeholder="Search anything related to dogs...">
           <div class="input-group-append">
             <input type="submit" class="btn btn-primary" value="Search">
@@ -31,6 +31,17 @@
          </tr>
         {% endfor %}
       </table>
+      {% endif %}
+      {% if pages is defined %}
+        <ul class="pagination">
+        {% for i in range(pages) %}
+          {% if curPage == i+1 %}
+            <li class="page-item active"><a class="page-link" href="/lookup/{{i+1}}?keyword={{request.args.get('keyword')}}">{{i+1}}</a></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="/lookup/{{i+1}}?keyword={{request.args.get('keyword')}}">{{i+1}}</a></li>
+          {% endif %}
+        {% endfor %}
+        </ul>
       {% endif %}
     </div>
   </body>
