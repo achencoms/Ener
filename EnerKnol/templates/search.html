@@ -9,7 +9,12 @@
     <div class="container">
       <a href="/logout" class="btn btn-danger my-2">Logout</a>
       <div class="jumbotron my-2">
-        <h1>Welcome user to the best search page.</h1>
+        <h1>Welcome {{user}} to the best search page.</h1>
+        <p style="text-indent:50px;">
+          You can search using keywords that relate to the properties of dogs.
+          Examples include: large, pomeranian, 10-12, small, average
+        </p>
+        <h5>Or if you would like, just press search and get all the dogs!</h5>
         <form class="input-group" action="/lookup/1" method="get">
           <input type="text" class="form-control" name="keyword" placeholder="Search anything related to dogs...">
           <div class="input-group-append">

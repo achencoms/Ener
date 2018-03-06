@@ -69,7 +69,7 @@ def log():
     if(data['user'] == "" or data['pass'] == ""):
         return render_template('home.html',msg="Please fill out the Login form completely")
     elif(User.query.filter_by(username=data['user'],password=data['pass']).first() != None):
-        session['log'] = 'poop'
+        session['log'] = data['user']
         return redirect(url_for("search"))
     return render_template("home.html",msg="Invalid Username / Password")
 
@@ -83,7 +83,7 @@ def logout():
 def search():
     if('log' not in session):
         return redirect(url_for("root"))
-    return render_template("search.html")
+    return render_template("search.html", user=session['log'])
 
 '''
 Currently
@@ -101,10 +101,11 @@ def lookup(page):
     page = int(page)
     count = doggies.count()
     numPages = math.ceil(count / 4.0)
+    print(numPages)
     if((page-1) * 4 > count): doggies = []
     elif(page * 4 > count): doggies = doggies[(page-1)*4:count]
     else: doggies = doggies[(page-1) * 4: page * 4]
-    return render_template("search.html",dogs=doggies, pages=numPages, curPage=page)
+    return render_template("search.html",dogs=doggies, pages=numPages, curPage=page, user=session['log'])
 
 #Separate page for the dog breed
 @app.route('/dog',methods=["GET"])
